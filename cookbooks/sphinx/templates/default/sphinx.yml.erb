@@ -7,4 +7,14 @@
   mem_limit: <%= @mem_limit %>
   config_file: /data/<%= @app_name %>/current/config/sphinx/<%= @node[:environment][:framework_env] %>.sphinx.conf
   searchd_file_path: /var/log/engineyard/sphinx/<%= @app_name %>/indexes
-
+  min_prefix_len: 3
+  enable_star: true
+  charset_type: utf-8
+  max_matches: 5000
+  # Extend Sphinx's default character set table with Greek characters
+  charset_table: "0..9, A..Z->a..z, _, a..z, \
+U+410..U+42F->U+430..U+44F, U+430..U+44F, \
+U+37a, U+386..U+389->U+3ac..U+3af, U+38c..U+38e->U+3cc..U+3ce, U+390, \
+U+391..U+3a1->U+3b1..U+3c1, U+3a3..U+3ab->U+3c3..U+3cb, U+3ac..U+3ce, \
+U+3d0..U+3d7, U+3d8..U+3ef/2, U+3f0..U+3f3, U+3f4->U+3b8, U+3f5, \
+U+3f7..U+3f8/2, U+3f9->U+3f2, U+3fa..U+3fb/2, U+3fc..U+3ff"
