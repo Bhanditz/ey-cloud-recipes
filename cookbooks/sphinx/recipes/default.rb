@@ -81,6 +81,17 @@ else
           group node[:owner_name]
           mode 0755
         end
+        
+        template "/usr/local/bin/sphinx-stopwords" do
+          source "sphinx-stopwords.erb"
+          owner node[:owner_name]
+          group node[:owner_name]
+          mode 0755
+          variables({
+            :app_name => app_name,
+            :rails_env => node[:environment][:framework_env]
+          })
+        end
 
         directory "/data/#{app_name}/shared/config/sphinx" do
           recursive true
@@ -163,9 +174,22 @@ else
             day     '*'
             month   '*'
             weekday '*'
+            path    '/usr/local/bin:/usr/bin:/bin'
             command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake #{flavor}:index"
             user node[:owner_name]
           end
+        end
+        
+        cron "sphinx stop words" do
+          action  :create
+          minute  '0'
+          hour    '4'
+          day     '*'
+          month   '*'
+          weekday '*'
+          path    '/usr/local/bin:/usr/bin:/bin'
+          command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:generate && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:import && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:phrases"
+          user node[:owner_name]
         end
       end
     end
@@ -272,7 +296,22 @@ else
             day     '*'
             month   '*'
             weekday '*'
+            path    '/usr/local/bin:/usr/bin:/bin'
             command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake #{flavor}:index"
+            user node[:owner_name]
+          end
+        end
+        
+        if ['solo', 'app_master'].include?(node[:instance_role])
+          cron "sphinx stop words" do
+            action  :create
+            minute  '0'
+            hour    '4'
+            day     '*'
+            month   '*'
+            weekday '*'
+            path    '/usr/local/bin:/usr/bin:/bin'
+            command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:generate && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:import && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:phrases"
             user node[:owner_name]
           end
         end
