@@ -81,17 +81,6 @@ else
           group node[:owner_name]
           mode 0755
         end
-        
-        template "/usr/local/bin/sphinx-stopwords" do
-          source "sphinx-stopwords.erb"
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0755
-          variables({
-            :app_name => app_name,
-            :rails_env => node[:environment][:framework_env]
-          })
-        end
 
         directory "/data/#{app_name}/shared/config/sphinx" do
           recursive true
