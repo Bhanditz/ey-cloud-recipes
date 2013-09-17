@@ -1,0 +1,10 @@
+#! /bin/sh
+
+cd /data/<%= @app_name %>/current
+
+RAILS_ENV=<%= @rails_env %> bundle exec rake <%= @rake_task %>
+
+<% @app_hosts.each do |app_instance| %>
+scp -o StrictHostKeyChecking=no -i /home/<%= @user %>/.ssh/internal \
+  ./public/sitemap*.xml* <%= app_instance %>:/data/<%= @app_name %>/current/public/
+<% end %>
