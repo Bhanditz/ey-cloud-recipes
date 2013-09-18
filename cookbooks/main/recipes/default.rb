@@ -4,6 +4,9 @@
 #  }
 #end
 
+# uncomment to run utility_config
+include_recipe "utility_config"
+
 # uncomment to turn on sitemap_generator
 include_recipe "sitemap_generator"
 
