@@ -17,8 +17,8 @@ flavor = "thinking_sphinx"
 # run by the time this executes on the utility instance. If that occurs
 # just deploy again and the recipe should succeed.
 
-utility_name = nil
-# utility_name = "sphinx"
+#utility_name = nil
+utility_name = "utility"
 
 # If you want to have scheduled reindexes in cron, enter the minute
 # interval here. This is passed directly to cron via /, so you should
@@ -34,151 +34,153 @@ if ! File.exists?("/data/#{appname}/current")
   Chef::Log.info "Sphinx was not configured because the app must be deployed first.  Please deploy it then re-run custom recipes."
 else
   if utility_name
-    sphinx_host = node[:utility_instances].find {|u| u[:name] == utility_name }[:hostname]
-    if ['solo', 'app', 'app_master'].include?(node[:instance_role])
-      run_for_app(appname) do |app_name, data|
-        ey_cloud_report "Sphinx" do
-          message "configuring #{flavor}"
-        end
+    if sphinx_instance = node[:utility_instances].find {|u| u[:name] == utility_name }
+      sphinx_host = sphinx_instance[:hostname]
+      if ['solo', 'app', 'app_master'].include?(node[:instance_role])
+        run_for_app(appname) do |app_name, data|
+          ey_cloud_report "Sphinx" do
+            message "configuring #{flavor}"
+          end
 
-        directory "/data/#{app_name}/shared/config/sphinx" do
-          recursive true
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0755
-        end
+          directory "/data/#{app_name}/shared/config/sphinx" do
+            recursive true
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0755
+          end
 
-        template "/data/#{app_name}/shared/config/sphinx.yml" do
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0644
-          source "sphinx.yml.erb"
-          variables({
-            :app_name => app_name,
-            :address => sphinx_host,
-            :user => node[:owner_name],
-            :mem_limit => '32M'
-          })
+          template "/data/#{app_name}/shared/config/sphinx.yml" do
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0644
+            source "sphinx.yml.erb"
+            variables({
+              :app_name => app_name,
+              :address => sphinx_host,
+              :user => node[:owner_name],
+              :mem_limit => '32M'
+            })
+          end
         end
       end
-    end
 
-    if node[:name] == utility_name
-      run_for_app(appname) do |app_name, data|
-        ey_cloud_report "Sphinx" do
-          message "configuring #{flavor}"
-        end
+      if node[:name] == utility_name
+        run_for_app(appname) do |app_name, data|
+          ey_cloud_report "Sphinx" do
+            message "configuring #{flavor}"
+          end
 
-        directory "/var/run/sphinx" do
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0755
-        end
+          directory "/var/run/sphinx" do
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0755
+          end
 
-        directory "/var/log/engineyard/sphinx/#{app_name}" do
-          recursive true
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0755
-        end
+          directory "/var/log/engineyard/sphinx/#{app_name}" do
+            recursive true
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0755
+          end
 
-        directory "/data/#{app_name}/shared/config/sphinx" do
-          recursive true
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0755
-        end
+          directory "/data/#{app_name}/shared/config/sphinx" do
+            recursive true
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0755
+          end
 
-        remote_file "/etc/logrotate.d/sphinx" do
-          owner "root"
-          group "root"
-          mode 0755
-          source "sphinx.logrotate"
-          backup false
-          action :create
-        end
+          remote_file "/etc/logrotate.d/sphinx" do
+            owner "root"
+            group "root"
+            mode 0755
+            source "sphinx.logrotate"
+            backup false
+            action :create
+          end
 
-        template "/etc/monit.d/sphinx.#{app_name}.monitrc" do
-          source "sphinx.monitrc.erb"
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0644
-          variables({
-            :app_name => app_name,
-            :user => node[:owner_name],
-            :flavor => flavor
-          })
-        end
+          template "/etc/monit.d/sphinx.#{app_name}.monitrc" do
+            source "sphinx.monitrc.erb"
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0644
+            variables({
+              :app_name => app_name,
+              :user => node[:owner_name],
+              :flavor => flavor
+            })
+          end
 
-        template "/data/#{app_name}/shared/config/sphinx.yml" do
-          owner node[:owner_name]
-          group node[:owner_name]
-          mode 0644
-          source "sphinx.yml.erb"
-          variables({
-            :app_name => app_name,
-            :address => sphinx_host,
-            :user => node[:owner_name],
-            :mem_limit => '32M'
-          })
-        end
+          template "/data/#{app_name}/shared/config/sphinx.yml" do
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0644
+            source "sphinx.yml.erb"
+            variables({
+              :app_name => app_name,
+              :address => sphinx_host,
+              :user => node[:owner_name],
+              :mem_limit => '32M'
+            })
+          end
 
-        gem_package "bundler" do 
-          source "http://rubygems.org" 
-          action :install 
-          version "1.0.21" 
-        end
+          gem_package "bundler" do 
+            source "http://rubygems.org" 
+            action :install 
+            version "1.0.21" 
+          end
 
-        execute "sphinx config" do
-          command "bundle exec rake #{flavor}:configure"
-          user node[:owner_name]
-          environment({
-            'HOME' => "/home/#{node[:owner_name]}",
-            'RAILS_ENV' => node[:environment][:framework_env]
-          })
-          cwd "/data/#{app_name}/current"
-        end
+          execute "sphinx config" do
+            command "bundle exec rake #{flavor}:configure"
+            user node[:owner_name]
+            environment({
+              'HOME' => "/home/#{node[:owner_name]}",
+              'RAILS_ENV' => node[:environment][:framework_env]
+            })
+            cwd "/data/#{app_name}/current"
+          end
 
-        ey_cloud_report "indexing #{flavor}" do
-          message "indexing #{flavor}"
-        end
+          ey_cloud_report "indexing #{flavor}" do
+            message "indexing #{flavor}"
+          end
 
-        execute "#{flavor} index" do
-          command "bundle exec rake #{flavor}:index"
-          user node[:owner_name]
-          environment({
-            'HOME' => "/home/#{node[:owner_name]}",
-            'RAILS_ENV' => node[:environment][:framework_env]
-          })
-          cwd "/data/#{app_name}/current"
-        end
+          execute "#{flavor} index" do
+            command "bundle exec rake #{flavor}:index"
+            user node[:owner_name]
+            environment({
+              'HOME' => "/home/#{node[:owner_name]}",
+              'RAILS_ENV' => node[:environment][:framework_env]
+            })
+            cwd "/data/#{app_name}/current"
+          end
 
-        execute "monit reload"
+          execute "monit reload"
 
-        if cron_interval
-          cron "sphinx index" do
+          if cron_interval
+            cron "sphinx index" do
+              action  :create
+              minute  "*/#{cron_interval}"
+              hour    '*'
+              day     '*'
+              month   '*'
+              weekday '*'
+              path    '/usr/local/bin:/usr/bin:/bin'
+              command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake #{flavor}:index"
+              user node[:owner_name]
+            end
+          end
+          
+          cron "sphinx stop words" do
             action  :create
-            minute  "*/#{cron_interval}"
-            hour    '*'
+            minute  '0'
+            hour    '4'
             day     '*'
             month   '*'
             weekday '*'
             path    '/usr/local/bin:/usr/bin:/bin'
-            command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake #{flavor}:index"
+            command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:generate && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:import && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:phrases"
             user node[:owner_name]
           end
-        end
-        
-        cron "sphinx stop words" do
-          action  :create
-          minute  '0'
-          hour    '4'
-          day     '*'
-          month   '*'
-          weekday '*'
-          path    '/usr/local/bin:/usr/bin:/bin'
-          command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:generate && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:stops:import && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake auto_complete:phrases"
-          user node[:owner_name]
         end
       end
     end
