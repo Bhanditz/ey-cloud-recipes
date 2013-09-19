@@ -34,7 +34,7 @@ if ! File.exists?("/data/#{appname}/current")
   Chef::Log.info "Sphinx was not configured because the app must be deployed first.  Please deploy it then re-run custom recipes."
 else
   if utility_name
-    if sphinx_instance = node[:utility_instances].find {|u| u[:name] == utility_name }
+    if sphinx_instance = node[:utility_instances].find { |u| u[:name] == utility_name }
       sphinx_host = sphinx_instance[:hostname]
       if ['solo', 'app', 'app_master'].include?(node[:instance_role])
         run_for_app(appname) do |app_name, data|
@@ -59,6 +59,16 @@ else
               :address => sphinx_host,
               :user => node[:owner_name],
               :mem_limit => '32M'
+            })
+          end
+          
+          template "/data/#{app_name}/shared/config/initializers/thinking_sphinx.rb" do
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0644
+            source "thinking_sphinx.rb.erb"
+            variables({
+              :remote => true
             })
           end
         end
@@ -121,6 +131,16 @@ else
               :address => sphinx_host,
               :user => node[:owner_name],
               :mem_limit => '32M'
+            })
+          end
+          
+          template "/data/#{app_name}/shared/config/initializers/thinking_sphinx.rb" do
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0644
+            source "thinking_sphinx.rb.erb"
+            variables({
+              :remote => false
             })
           end
 
@@ -243,6 +263,16 @@ else
             :address => 'localhost',
             :user => node[:owner_name],
             :mem_limit => '32'
+          })
+        end
+        
+        template "/data/#{app_name}/shared/config/initializers/thinking_sphinx.rb" do
+          owner node[:owner_name]
+          group node[:owner_name]
+          mode 0644
+          source "thinking_sphinx.rb.erb"
+          variables({
+            :remote => false
           })
         end
 
