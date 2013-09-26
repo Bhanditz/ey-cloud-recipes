@@ -1,0 +1,16 @@
+#! /bin/sh
+
+LOCKFILE=/home/<%= @user %>/.dir-sync.lock
+
+if [ -f ${LOCKFILE} ]; then
+  echo "dir-sync lockfile \"${LOCKFILE}\" already exists; exiting."
+  exit
+fi
+
+touch ${LOCKFILE}
+
+<% @app_hosts.each do |app_instance| %>
+rsync -a -e "ssh -o StrictHostKeyChecking=no -i /home/<%= @user %>/.ssh/internal" <%= @directory %>/ <%= @user %>@<%= app_instance %>:<%= @directory %>/
+<% end %>
+
+rm ${LOCKFILE}
