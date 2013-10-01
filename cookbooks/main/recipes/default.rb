@@ -4,8 +4,8 @@
 #  }
 #end
 
-# uncomment to run utility_config
-include_recipe "utility_config"
+# uncomment to activate timezone
+include_recipe "timezone"
 
 # uncomment to turn on sitemap_generator
 include_recipe "sitemap_generator"
@@ -15,6 +15,9 @@ include_recipe "sphinx"
 
 # uncomment to activate Delayed Job
 include_recipe "delayed_job"
+
+# uncomment to activate dir_sync
+include_recipe "dir_sync"
 
 # uncomment to turn on thinking sphinx 3. See cookbooks/thinking-sphinx-3/readme.md for documentation.
 # include_recipe "thinking-sphinx-3"
