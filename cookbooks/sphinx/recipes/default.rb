@@ -99,6 +99,13 @@ else
             group node[:owner_name]
             mode 0755
           end
+          
+          directory "/data/#{app_name}/shared/config/initializers" do
+            recursive true
+            owner node[:owner_name]
+            group node[:owner_name]
+            mode 0755
+          end
 
           remote_file "/etc/logrotate.d/sphinx" do
             owner "root"
