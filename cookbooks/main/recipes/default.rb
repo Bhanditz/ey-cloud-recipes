@@ -17,7 +17,7 @@ include_recipe "sphinx"
 include_recipe "delayed_job"
 
 # uncomment to activate dir_sync
-include_recipe "dir_sync"
+# include_recipe "dir_sync"
 
 # uncomment to turn on thinking sphinx 3. See cookbooks/thinking-sphinx-3/readme.md for documentation.
 # include_recipe "thinking-sphinx-3"
@@ -44,7 +44,7 @@ include_recipe "dir_sync"
 # include_recipe "eybackup_slave"
 
 #uncomment to run the ssmtp recipe
-#include_recipe "ssmtp"
+include_recipe "ssmtp"
 
 #uncomment to run the sunspot recipe
 # include_recipe "sunspot"
