@@ -16,6 +16,9 @@ include_recipe "sphinx"
 # uncomment to activate Delayed Job
 include_recipe "delayed_job"
 
+# uncomment to activate memcached-util
+include_recipe "memcached-util"
+
 # uncomment to activate dir_sync
 # include_recipe "dir_sync"
 
