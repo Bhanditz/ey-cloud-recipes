@@ -1,6 +1,6 @@
 # change these to suit your needs
-utility_name = 'utility'
-memory_usage = 1024 # MB
+utility_name = 'memcached'
+memory_usage = 3072 # MB
 memcached_version = '1.4.5-r1'
 
 # service
