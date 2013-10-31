@@ -34,7 +34,15 @@ elsif ! File.exists?("/data/#{appname}/current/config/sitemap.rb")
 else
   rake_task = ping ? "sitemap:refresh" : "sitemap:refresh:no_ping"
   
-  if utility_name && node[:name] == utility_name
+  if utility_name
+    install_here = (node[:name] == utility_name)
+  else
+    install_here = ['solo', 'app', 'app_master'].include?(node[:instance_role])
+  end
+  
+  if install_here
+    app_hosts = utility_name ? node[:members] : []
+    
     run_for_app(appname) do |app_name, data|
       template "/usr/local/bin/sitemap-refresh" do
         owner node[:owner_name]
@@ -43,7 +51,7 @@ else
         source "sitemap-refresh.erb"
         variables({
           :app_name => app_name,
-          :app_hosts => node[:members],
+          :app_hosts => app_hosts,
           :instance_role => node[:instance_role],
           :rails_env => node[:environment][:framework_env],
           :rake_task => rake_task,
@@ -51,34 +59,6 @@ else
         })
       end
       
-      cron "sitemap_generator refresh" do
-        action  :create
-        minute  "#{cron_minute}"
-        hour    "#{cron_hour}"
-        day     '*'
-        month   '*'
-        weekday '*'
-        command "/usr/local/bin/sitemap-refresh"
-        user node[:owner_name]
-      end
-    end
-  elsif ['solo', 'app', 'app_master'].include?(node[:instance_role])
-    run_for_app(appname) do |app_name, data|
-      template "/usr/local/bin/sitemap-refresh" do
-        owner node[:owner_name]
-        group node[:owner_name]
-        mode 0755
-        source "sitemap-refresh.erb"
-        variables({
-          :app_name => app_name,
-          :app_hosts => [],
-          :instance_role => node[:instance_role],
-          :rails_env => node[:environment][:framework_env],
-          :rake_task => rake_task,
-          :user => node[:owner_name]
-        })
-      end
-        
       cron "sitemap_generator refresh" do
         action  :create
         minute  "#{cron_minute}"
