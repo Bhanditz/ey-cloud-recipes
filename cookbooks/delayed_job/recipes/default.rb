@@ -2,8 +2,9 @@
 # Cookbook Name:: delayed_job
 # Recipe:: default
 #
+require 'socket'
 
-if node[:instance_role] == "solo" || (node[:instance_role] == "util" && node[:name] !~ /^(mongodb|redis|memcache)/)
+if ['solo', 'app', 'app_master'].include?(node[:instance_role]) || (node[:instance_role] == "util" && node[:name] !~ /^(mongodb|redis|memcache)/)
   node[:applications].each do |app_name,data|
   
     # determine the number of workers to run based on instance size
@@ -19,6 +20,22 @@ if node[:instance_role] == "solo" || (node[:instance_role] == "util" && node[:na
       end
     end
     
+    # determine the queues for this instance
+    if node[:instance_role] == 'solo'
+      queues = "" # i.e. all
+    elsif node[:instance_role] == 'util'
+      queues = "export"
+    else # app instances
+      queues = Socket.gethostname
+    end
+    
+    remote_file "/usr/local/bin/dj" do
+      source "dj"
+      owner "root"
+      group "root"
+      mode 0755
+    end
+    
     worker_count.times do |count|
       template "/etc/monit.d/delayed_job#{count+1}.#{app_name}.monitrc" do
         source "dj.monitrc.erb"
@@ -29,7 +46,8 @@ if node[:instance_role] == "solo" || (node[:instance_role] == "util" && node[:na
           :app_name => app_name,
           :user => node[:owner_name],
           :worker_name => "#{app_name}_delayed_job#{count+1}",
-          :framework_env => node[:environment][:framework_env]
+          :framework_env => node[:environment][:framework_env],
+          :queues => queues
         })
       end
     end
