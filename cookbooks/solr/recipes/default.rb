@@ -3,18 +3,12 @@
 # Recipe:: default
 #
 # We specify what version we want below.
-solr_desiredversion = 1.4
+solr_version = "3.6.2"
 if ['solo', 'util'].include?(node[:instance_role])
-  if solr_desiredversion == 1.3
-    solr_file = "apache-solr-1.3.0.tgz"
-    solr_dir = "apache-solr-1.3.0"
-    solr_url = "http://archive.apache.org/dist/lucene/solr/1.3.0/apache-solr-1.3.0.tgz"
-  else
-    solr_dir = "apache-solr-1.4.1"
-    solr_file = "apache-solr-1.4.1.tgz"
-    solr_url = "http://archive.apache.org/dist/lucene/solr/1.4.1/apache-solr-1.4.1.tgz"
-  end
-
+  solr_file = "apache-solr-#{solr_version}.tgz"
+  solr_dir = "apache-solr-#{solr_version}"
+  solr_url = "http://archive.apache.org/dist/lucene/solr/#{solr_version}/#{solr_file}"
+  
   directory "/var/run/solr" do
     action :create
     owner node[:owner_name]
@@ -36,7 +30,8 @@ if ['solo', 'util'].include?(node[:instance_role])
     group node[:owner_name]
     mode 0755
   variables({
-    :rails_env => node[:environment][:framework_env]
+    :rails_env => node[:environment][:framework_env],
+    :solr_home => node[:solr_home]
   })
   end
 
@@ -69,8 +64,8 @@ if ['solo', 'util'].include?(node[:instance_role])
     command "cd /data/#{solr_dir} && mv example /data/solr"
     not_if { FileTest.exists?("/data/solr/start.jar") }
   end
-
-   directory "/data/solr" do
+  
+  directory "/data/solr" do
     action :create
     owner node[:owner_name]
     group node[:owner_name]
