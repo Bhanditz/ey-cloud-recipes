@@ -4,6 +4,9 @@
 #  }
 #end
 
+#uncomment to use the openskos recipe
+include_recipe "openskos"
+
 # uncomment to turn on thinking sphinx 2/ultra sphinx. Remember to edit cookbooks/sphinx/recipes/default.rb first!
 # include_recipe "sphinx"
 
@@ -47,7 +50,7 @@
 
 #uncomment to install specified packages
 # You must add your packages to packages/attributes/packages.rb
-#require_recipe "packages"
+require_recipe "packages"
 
 #uncomment to run the exim::auth recipe
 #include_recipe "exim::auth"
@@ -71,7 +74,7 @@
 #include_recipe "logrotate"
 #
 #uncomment to use the solr recipe
-#include_recipe "solr"
+include_recipe "solr"
 
 #include_recipe "varnish_frontend"
 
