@@ -4,6 +4,9 @@
 #  }
 #end
 
+# uncomment to activate timezone
+include_recipe "timezone"
+
 #uncomment to use the openskos recipe
 include_recipe "openskos"
 
