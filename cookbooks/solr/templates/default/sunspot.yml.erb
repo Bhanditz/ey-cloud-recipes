@@ -1,0 +1,8 @@
+<%= @rails_env %>:
+  solr:
+    hostname: <%= @solr_hostname %>
+    port: 8983
+    log_level: WARNING
+    path: /solr/<%= @application %>
+    # read_timeout: 2
+    # open_timeout: 0.5

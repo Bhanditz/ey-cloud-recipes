@@ -1,4 +1,4 @@
-check process solr_9080
+check process solr
 with pidfile /var/run/solr/solr.pid
   start program = "/engineyard/bin/solr start" as uid <%= @user %> and gid <%= @group %>
   stop program = "/engineyard/bin/solr stop" as uid <%= @user %> and gid <%= @group %>

@@ -2,19 +2,16 @@
 # Cookbook Name:: solr
 # Recipe:: default
 #
-# We specify what version we want below.
-solr_desiredversion = 1.4
-if ['solo', 'util'].include?(node[:instance_role])
-  if solr_desiredversion == 1.3
-    solr_file = "apache-solr-1.3.0.tgz"
-    solr_dir = "apache-solr-1.3.0"
-    solr_url = "http://archive.apache.org/dist/lucene/solr/1.3.0/apache-solr-1.3.0.tgz"
-  else
-    solr_dir = "apache-solr-1.4.1"
-    solr_file = "apache-solr-1.4.1.tgz"
-    solr_url = "http://archive.apache.org/dist/lucene/solr/1.4.1/apache-solr-1.4.1.tgz"
-  end
 
+if (node[:solr_utility_name].empty? && ['solo', 'util'].include?(node[:instance_role])) ||
+  (!node[:solr_utility_name].empty? && (node[:name] == node[:solr_utility_name]))
+  
+  solr_version = node[:solr_version]
+  solr_file = "apache-solr-#{solr_version}.tgz"
+  solr_dir = "apache-solr-#{solr_version}"
+  solr_url = "http://archive.apache.org/dist/lucene/solr/#{solr_version}/#{solr_file}"
+  solr_applications = node[:applications].select { |app_name, data| File.directory?("/data/#{app_name}/current/solr/conf") }
+  
   directory "/var/run/solr" do
     action :create
     owner node[:owner_name]
@@ -30,16 +27,6 @@ if ['solo', 'util'].include?(node[:instance_role])
     recursive true
   end
 
-  template "/engineyard/bin/solr" do
-    source "solr.erb"
-    owner node[:owner_name]
-    group node[:owner_name]
-    mode 0755
-  variables({
-    :rails_env => node[:environment][:framework_env]
-  })
-  end
-
   template "/etc/monit.d/solr.monitrc" do
     source "solr.monitrc.erb"
     owner node[:owner_name]
@@ -49,6 +36,13 @@ if ['solo', 'util'].include?(node[:instance_role])
       :user => node[:owner_name],
       :group => node[:owner_name]
     })
+  end
+  
+  directory "/data/solr" do
+    action :create
+    owner node[:owner_name]
+    group node[:owner_name]
+    mode 0755
   end
 
   remote_file "/data/#{solr_file}" do
@@ -64,28 +58,66 @@ if ['solo', 'util'].include?(node[:instance_role])
     command "cd /data && tar zxf #{solr_file} && sync"
     not_if { FileTest.directory?("/data/#{solr_dir}") }
   end
-
-  execute "install solr example package" do
-    command "cd /data/#{solr_dir} && mv example /data/solr"
+  
+  execute "initialize from solr example package" do
+    command "cd /data/#{solr_dir}/example && cp -r etc lib start.jar webapps work /data/solr"
     not_if { FileTest.exists?("/data/solr/start.jar") }
   end
-
-   directory "/data/solr" do
+  
+  execute "chown_solr" do
+    command "chown #{node[:owner_name]}:#{node[:owner_name]} -R /data/solr"
+  end
+  
+  directory "/data/solr/multicore" do
     action :create
     owner node[:owner_name]
     group node[:owner_name]
     mode 0755
   end
+  
+  template "/data/solr/multicore/solr.xml" do
+    source "solr.xml.erb"
+    owner node[:owner_name]
+    group node[:owner_name]
+    mode 0644
+    variables({
+      :applications => solr_applications
+    })
+  end
+  
+  solr_applications.each do |app_name, data|
+    app_solr_conf_dir = "/data/#{app_name}/current/solr/conf"
+    directory "/data/solr/multicore/#{app_name}" do
+      action :create
+      owner node[:owner_name]
+      group node[:owner_name]
+      mode 0755
+    end
+    
+    execute "link to #{app_name} solr config" do
+      command "ln -nfs #{app_solr_conf_dir} /data/solr/multicore/#{app_name}/conf"
+    end
+  end
 
-   execute "chown_solr" do
-     command "chown #{node[:owner_name]}:#{node[:owner_name]} -R /data/solr"
-   end
+  template "/engineyard/bin/solr" do
+    source "solr.erb"
+    owner node[:owner_name]
+    group node[:owner_name]
+    mode 0755
+    variables({
+      :rails_env => node[:environment][:framework_env]
+    })
+  end
 
-   execute "monit-reload" do
-     command "monit quit && telinit q"
-   end
+  execute "monit-reload" do
+    command "monit quit && telinit q"
+  end
 
-   execute "start-solr" do
-     command "sleep 3 && monit start solr_9080"
-   end
+  execute "start-solr" do
+    command "sleep 3 && monit start solr"
+  end
+end
+
+if node[:solr_sunspot]
+  include_recipe "solr::sunspot"
 end

@@ -1,0 +1,12 @@
+<solr persistent="false">
+
+  <!--
+  adminPath: RequestHandler path to manage cores.  
+    If 'null' (or absent), cores will not be manageable via request handler
+  -->
+  <cores adminPath="/admin/cores">
+    <% @applications.each do |app_name, data| %>
+    <core name="<%= app_name %>" instanceDir="<%= app_name %>" />
+    <% end %>
+  </cores>
+</solr>

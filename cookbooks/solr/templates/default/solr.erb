@@ -28,7 +28,7 @@ PID=`cat /var/run/solr/solr.pid`
         fi
 fi
  
-nohup java -Djava.net.preferIPv4Stack=true -Dsolr.solr.home=solr -jar start.jar >> /var/log/engineyard/solr/solr.log 2>> /var/log/engineyard/solr/solr.err.log &
+nohup java -Djava.net.preferIPv4Stack=true -Dsolr.solr.home=multicore -jar start.jar >> /var/log/engineyard/solr/solr.log 2>> /var/log/engineyard/solr/solr.err.log &
 echo $! > /var/run/solr/solr.pid
       ;;
     stop)
