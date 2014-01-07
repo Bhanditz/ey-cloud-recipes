@@ -11,7 +11,7 @@ include_recipe "timezone"
 include_recipe "sitemap_generator"
 
 # uncomment to turn on thinking sphinx 2/ultra sphinx. Remember to edit cookbooks/sphinx/recipes/default.rb first!
-include_recipe "sphinx"
+#include_recipe "sphinx"
 
 # uncomment to activate Delayed Job
 include_recipe "delayed_job"
@@ -86,7 +86,7 @@ include_recipe "ssmtp"
 #include_recipe "logrotate"
 #
 #uncomment to use the solr recipe
-#include_recipe "solr"
+include_recipe "solr"
 
 #include_recipe "varnish_frontend"
 
