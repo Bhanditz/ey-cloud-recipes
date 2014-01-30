@@ -1,7 +1,7 @@
 # change these to suit your needs
 utility_name = 'memcached'
 memory_usage = 3072 # MB
-memcached_version = '1.4.5-r1'
+memcached_version = '1.4.17'
 
 # service
 service "memcached" do
