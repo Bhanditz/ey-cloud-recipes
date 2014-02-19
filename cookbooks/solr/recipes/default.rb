@@ -34,7 +34,8 @@ if (node[:solr_utility_name].empty? && ['solo', 'util'].include?(node[:instance_
     mode 0644
     variables({
       :user => node[:owner_name],
-      :group => node[:owner_name]
+      :group => node[:owner_name],
+      :memory_limit => node[:solr_memory_limit]
     })
   end
   
@@ -105,7 +106,8 @@ if (node[:solr_utility_name].empty? && ['solo', 'util'].include?(node[:instance_
     group node[:owner_name]
     mode 0755
     variables({
-      :rails_env => node[:environment][:framework_env]
+      :rails_env => node[:environment][:framework_env],
+      :memory_limit => node[:solr_memory_limit]
     })
   end
 
