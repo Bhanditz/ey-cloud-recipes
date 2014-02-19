@@ -47,7 +47,7 @@ include_recipe "memcached-util"
 # include_recipe "eybackup_slave"
 
 #uncomment to run the ssmtp recipe
-include_recipe "ssmtp"
+# include_recipe "ssmtp"
 
 #uncomment to run the sunspot recipe
 # include_recipe "sunspot"
