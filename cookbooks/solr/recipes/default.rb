@@ -39,6 +39,15 @@ if (node[:solr_utility_name].empty? && ['solo', 'util'].include?(node[:instance_
     })
   end
   
+  remote_file "/etc/logrotate.d/solr" do
+    owner "root"
+    group "root"
+    mode 0644
+    source "solr.logrotate"
+    backup false
+    action :create
+  end
+  
   directory "/data/solr" do
     action :create
     owner node[:owner_name]
