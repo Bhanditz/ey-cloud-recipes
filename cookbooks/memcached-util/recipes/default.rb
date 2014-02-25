@@ -29,6 +29,11 @@ if host
         })
       end
     end
+
+    # remove default version of memcached
+    execute "mask memcached" do
+      command "sed -i '/^=net-misc\\/memcached-/d' /etc/portage/package.keywords/local"
+    end
   end
   
   # utility instance
