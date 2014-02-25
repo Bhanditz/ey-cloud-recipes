@@ -44,6 +44,7 @@ if host
       action :install
       version memcached_version
       notifies :restart, resources(:service => "memcached"), :delayed
+      not_if "equery list net-misc/memcached-#{memcached_version} | grep memcached"
     end
   
     # conf
@@ -69,7 +70,5 @@ if host
       backup false
       action :create
     end
-    
-    execute "monit quit && sleep 2"
   end
 end
