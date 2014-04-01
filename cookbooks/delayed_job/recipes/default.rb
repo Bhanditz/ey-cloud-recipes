@@ -24,7 +24,7 @@ if ['solo', 'app', 'app_master'].include?(node[:instance_role]) || (node[:instan
     if node[:instance_role] == 'solo'
       queues = "" # i.e. all
     elsif node[:instance_role] == 'util'
-      queues = "export,europeana_harvest"
+      queues = "export,europeana_harvest,europeana_purge"
     else # app instances
       queues = Socket.gethostname
     end
