@@ -1,8 +1,10 @@
 ey-cloud-recipes/europeana
 ==========================
 
-This recipe creates a weekly cron job to purge harvested Europeana records no
-longer on the portal, via DelayedJob.
+This recipe creates weekly cron jobs to:
+
+* update harvested Europeana records updated on the portal, via DelayedJob.
+* purge harvested Europeana records no longer on the portal, via DelayedJob.
 
 Dependencies
 ============
