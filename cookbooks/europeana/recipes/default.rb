@@ -17,27 +17,31 @@ node[:applications].each do |app_name, data|
       
       if (node[:europeana_utility_name].empty? && ['solo', 'util'].include?(node[:instance_role])) ||
         (!node[:europeana_utility_name].empty? && (node[:name] == node[:europeana_utility_name]))
-      
-        cron "europeana update" do
-          action  :create
-          minute  '45'
-          hour    '4'
-          day     '*'
-          month   '*'
-          weekday '6'
-          command "cd /data/#{app_name}/current && bundle exec rake europeana:update"
-          user node[:owner_name]
+        
+        if node[:europeana_update]
+          cron "europeana update" do
+            action  :create
+            minute  '45'
+            hour    '4'
+            day     '*'
+            month   '*'
+            weekday '6'
+            command "cd /data/#{app_name}/current && bundle exec rake europeana:update"
+            user node[:owner_name]
+          end
         end
-      
-        cron "europeana purge" do
-          action  :create
-          minute  '45'
-          hour    '4'
-          day     '*'
-          month   '*'
-          weekday '0'
-          command "cd /data/#{app_name}/current && bundle exec rake europeana:purge"
-          user node[:owner_name]
+        
+        if node[:europeana_purge]
+          cron "europeana purge" do
+            action  :create
+            minute  '45'
+            hour    '4'
+            day     '*'
+            month   '*'
+            weekday '0'
+            command "cd /data/#{app_name}/current && bundle exec rake europeana:purge"
+            user node[:owner_name]
+          end
         end
         
       end
