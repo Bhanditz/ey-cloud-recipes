@@ -2,7 +2,10 @@
 # within the section identified by the EY app framework env, e.g. "production"
 #
 default[:openskos_config] = {
-  "resources.locale.default" => "en_GB.utf8"
+  "resources.locale.default" => "en_GB.utf8",
+  "editor.conceptSchemesDefaultBaseUri" => "http://data.europeana.eu/concept/",
+  "editor.conceptsBaseUris[]" => "http://data.europeana.eu/concept/",
+  "editor.apiclient.apiurl" => "http://skos.europeana.eu/api/"
 }
 
 # Set the name of the Solr utility instance, if there is one.
