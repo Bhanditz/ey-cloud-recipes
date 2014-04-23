@@ -6,6 +6,8 @@
 
 The ey-cloud-recipes repository is a collection of [chef](http://wiki.opscode.com/display/chef/Home) cookbooks that setup and configure commonly used tools for ruby applications, as well as cookbooks that can be used to modify parts of the EY Cloud environment.
 
+Portal test env
+
 **Note: These cookbooks are for reference, and do not indicate a supported status.**
 
 ## Quick Start Guide
