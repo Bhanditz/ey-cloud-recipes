@@ -26,7 +26,7 @@ node[:applications].each do |app_name, data|
             day     '*'
             month   '*'
             weekday '6'
-            command "cd /data/#{app_name}/current && bundle exec rake europeana:update"
+            command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake europeana:update"
             user node[:owner_name]
           end
         end
@@ -39,7 +39,7 @@ node[:applications].each do |app_name, data|
             day     '*'
             month   '*'
             weekday '0'
-            command "cd /data/#{app_name}/current && bundle exec rake europeana:purge"
+            command "cd /data/#{app_name}/current && RAILS_ENV=#{node[:environment][:framework_env]} bundle exec rake europeana:purge"
             user node[:owner_name]
           end
         end
