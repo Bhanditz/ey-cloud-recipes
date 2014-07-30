@@ -8,5 +8,8 @@ default[:solr_utility_name] = "solr"
 # Set to true to configure Sunspot for Rails applications on this environment
 default[:solr_sunspot] = true
 
+# Set to true to configure Blacklight for Rails applications on this environment
+default[:solr_blacklight] = true
+
 # Set memory limit in MB
 default[:solr_memory_limit] = 2048

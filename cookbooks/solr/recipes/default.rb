@@ -132,3 +132,7 @@ end
 if node[:solr_sunspot]
   include_recipe "solr::sunspot"
 end
+
+if node[:solr_blacklight]
+  include_recipe "solr::blacklight"
+end
