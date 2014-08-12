@@ -38,18 +38,15 @@ if host
   
   # utility instance
   if node[:instance_role] == 'util' && node[:name] == utility_name
-    # install memcached
-    execute "unmask memcached #{memcached_version}" do
-      package = "=net-misc/memcached-#{memcached_version}"
-      command "echo '#{package}' >> /etc/portage/package.keywords/local"
-      not_if "grep #{package} /etc/portage/package.keywords/local"
+    enable_package "net-misc/memcached" do
+      version memcached_version
     end
     
     package "net-misc/memcached" do
       action :install
       version memcached_version
       notifies :restart, resources(:service => "memcached"), :delayed
-      not_if "equery list net-misc/memcached-#{memcached_version} | grep memcached"
+      not_if "equery list net-misc/memcached-#{memcached_version}"
     end
   
     # conf
