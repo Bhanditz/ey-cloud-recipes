@@ -3,6 +3,8 @@
 # This script starts and stops the DJ daemon
 # This script belongs in /usr/local/bin/dj
 #
+# This is a customised version of Engine Yard's /engineyard/bin/dj,
+# adding support for specifying queues.
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$PATH
 CURDIR=`pwd`
 
@@ -17,9 +19,6 @@ if [ $4 ]; then
   NAME="_$4"
   
   if [ $5 ]; then
-    # @todo separate DJ worker/command options for queues, with worker
-    #  having: :queues=>'$5'.split(',')
-    
     WORKER_OPTIONS=":queues=>'$5'.split(',')"
     COMMAND_OPTIONS=":queues=>'$5'"
     if [ $6 ]; then
@@ -66,7 +65,7 @@ lock(){
 
 exit_cleanly() {
   cd $CURDIR
-  logger -t "mont-dj:$WORKER[$$]" "exiting wrapper cleanly with $RESULT"
+  logger -t "monit-dj:$WORKER[$$]" "exiting wrapper cleanly with $RESULT"
   exit $RESULT
 }
 
@@ -159,8 +158,8 @@ if [ -d $RAILS_ROOT ]; then
        # Find children
        WORKER_PID=$(ps axo pid,ppid,command|awk '$2=='$PID' {print $1}')
        
-       kill -15 $PID $PPID; # kill worker and any child that it may have at this very moment
-       logger -t "monit-dj:$WORKER[$$]" "Stopping DJ Worker Process $PID $PPID"
+       kill -15 $PID $WORKER_PID; # kill worker and any child that it may have at this very moment
+       logger -t "monit-dj:$WORKER[$$]" "Stopping DJ Worker Process $PID $WORKER_PID"
 
        SLEEP_COUNT=0
        while [ -e /proc/$PID ]; do
