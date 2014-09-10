@@ -1,9 +1,9 @@
 # Set the version of Solr to install
-default[:solr_version] = "4.9.0"
+default[:solr_version] = "4.10.0"
 
 # Set the name of utility instance on which to run Solr.
 # Leave blank to install on all utility and solo instances.
-default[:solr_utility_name] = "solr"
+default[:solr_utility_name] = "solr4"
 
 # Set to true to configure Sunspot for Rails applications on this environment
 default[:solr_sunspot] = true
