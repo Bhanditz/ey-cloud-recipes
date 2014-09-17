@@ -8,11 +8,11 @@ if (node[:solr_utility_name].empty? && ['solo', 'util'].include?(node[:instance_
   
   solr_version = node[:solr_version]
   
-  unless solr_version < "4.8.0"
+  unless Gem::Version.new(solr_version) < Gem::Version.new('4.8.0')
     include_recipe "solr::java7"
   end
   
-  solr_file = solr_version < "4.1.0" ? "apache-solr-#{solr_version}.tgz" : solr_file = "solr-#{solr_version}.tgz"
+  solr_file = Gem::Version.new(solr_version) < Gem::Version.new("4.1.0") ? "apache-solr-#{solr_version}.tgz" : solr_file = "solr-#{solr_version}.tgz"
   solr_dir = solr_dir = File.basename(solr_file, '.tgz')
   solr_url = "http://archive.apache.org/dist/lucene/solr/#{solr_version}/#{solr_file}"
   solr_applications = node[:applications].select { |app_name, data| File.directory?("/data/#{app_name}/current/solr/conf") }
