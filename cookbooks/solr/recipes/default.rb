@@ -7,8 +7,13 @@ if (node[:solr_utility_name].empty? && ['solo', 'util'].include?(node[:instance_
   (!node[:solr_utility_name].empty? && (node[:name] == node[:solr_utility_name]))
   
   solr_version = node[:solr_version]
-  solr_file = "apache-solr-#{solr_version}.tgz"
-  solr_dir = "apache-solr-#{solr_version}"
+  
+  unless Gem::Version.new(solr_version) < Gem::Version.new('4.8.0')
+    include_recipe "solr::java7"
+  end
+  
+  solr_file = Gem::Version.new(solr_version) < Gem::Version.new("4.1.0") ? "apache-solr-#{solr_version}.tgz" : solr_file = "solr-#{solr_version}.tgz"
+  solr_dir = solr_dir = File.basename(solr_file, '.tgz')
   solr_url = "http://archive.apache.org/dist/lucene/solr/#{solr_version}/#{solr_file}"
   solr_applications = node[:applications].select { |app_name, data| File.directory?("/data/#{app_name}/current/solr/conf") }
   
@@ -69,13 +74,25 @@ if (node[:solr_utility_name].empty? && ['solo', 'util'].include?(node[:instance_
     not_if { FileTest.directory?("/data/#{solr_dir}") }
   end
   
+  execute "delete old solr files if upgrading" do
+    command "cd /data/solr && rm -fr etc lib start.jar resources webapps"
+    not_if "diff -q /data/solr/start.jar /data/#{solr_dir}/example/solr.jar"
+  end
+  
   execute "initialize from solr example package" do
-    command "cd /data/#{solr_dir}/example && cp -r etc lib start.jar webapps work /data/solr"
+    command "cd /data/#{solr_dir}/example && cp -r contexts etc lib resources start.jar webapps /data/solr"
     not_if { FileTest.exists?("/data/solr/start.jar") }
   end
   
   execute "chown_solr" do
     command "chown #{node[:owner_name]}:#{node[:owner_name]} -R /data/solr"
+  end
+  
+  directory "/data/solr/work" do
+    action :create
+    owner node[:owner_name]
+    group node[:owner_name]
+    mode 0755
   end
   
   directory "/data/solr/multicore" do

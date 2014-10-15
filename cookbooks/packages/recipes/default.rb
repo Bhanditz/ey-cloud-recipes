@@ -15,7 +15,8 @@ node[:packages].each do |package|
     
   package package[:name] do 
     version package[:version]
-    action :install 
+    action :install
+    not_if "equery list #{package[:name]}-#{package[:version]}"
   end
 
 end
