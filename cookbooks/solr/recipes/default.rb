@@ -148,4 +148,4 @@ end
 
 if node[:solr_sunspot]
   include_recipe "solr::sunspot"
-
+end
