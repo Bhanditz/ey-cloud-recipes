@@ -19,8 +19,11 @@ include_recipe "delayed_job"
 # uncomment to activate memcached-util
 include_recipe "memcached-util"
 
-# uncomment to active europeana. See cookbooks/europeana/README.md for documentation.
+# uncomment to activate europeana. See cookbooks/europeana/README.md for documentation.
 include_recipe "europeana"
+
+# uncomment to use imagemagick recipe
+include_recipe "imagemagick"
 
 # uncomment to activate dir_sync
 # include_recipe "dir_sync"
