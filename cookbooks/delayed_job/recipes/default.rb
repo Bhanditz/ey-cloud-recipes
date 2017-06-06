@@ -24,7 +24,7 @@ if ['solo', 'app', 'app_master'].include?(node[:instance_role]) || (node[:instan
     if node[:instance_role] == 'solo'
       queues = "" # i.e. all
     elsif node[:instance_role] == 'util'
-      queues = "export,europeana,flickr"
+      queues = "export,europeana,flickr,mapping"
     else # app instances
       queues = Socket.gethostname
     end
